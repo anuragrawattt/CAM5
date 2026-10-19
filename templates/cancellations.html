@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content-box">
+    <h2>Cancellations &amp; Refunds</h2>
+
+    <!-- Total Refund Summary -->
+    <div style="background-color: #fbe9e7; border-left: 4px solid #b03030; padding: 10px 14px; margin-bottom: 15px;">
+        <strong>Total Refund Amount Disbursed:</strong> &#8377;{{ "%.2f"|format(total_refund) }}
+        <span style="font-size:12px; color:#555; margin-left: 10px;">(Calculated via <code>SELECT SUM(Refund_Amount) FROM CANCELLATION</code>)</span>
+    </div>
+
+    <!-- Search / Filter Form -->
+    <div class="search-section">
+        <h3>Filter Cancellations by Minimum Refund Amount</h3>
+        <p style="font-size:12px; color:#555;">
+            SQL used: <code>SELECT * FROM CANCELLATION WHERE Refund_Amount >= min_refund ORDER BY Refund_Amount DESC</code>
+        </p>
+        <form method="GET">
+            <div class="form-row">
+                <label for="min_refund">Min Refund Amount (&#8377;):</label>
+                <input type="number" step="0.01" id="min_refund" name="min_refund" value="{{ min_refund }}" placeholder="e.g. 1000">
+                <button type="submit">Filter Cancellations</button>
+                {% if min_refund %}
+                <a href="{{ url_for('cancellations') }}" style="margin-left:10px; color:#24508f;">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+
+        {% if min_refund and not error %}
+            {% if search_results %}
+            <p style="margin-top:14px;"><strong>Cancellations with refund &ge; &#8377;{{ min_refund }}:</strong></p>
+            <table>
+                <thead>
+                    <tr><th>Cancel ID</th><th>Refund Amount (&#8377;)</th><th>Ticket No</th></tr>
+                </thead>
+                <tbody>
+                    {% for c in search_results %}
+                    <tr>
+                        <td>{{ c.Cancel_Id }}</td>
+                        <td>{{ "%.2f"|format(c.Refund_Amount) }}</td>
+                        <td>{{ c.Ticket_No if c.Ticket_No else '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="msg-info" style="margin-top:12px;">No cancellations found with refund &ge; &#8377;{{ min_refund }}.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- All Cancellations -->
+    <h3>All Cancellation Records</h3>
+    {% if cancellations %}
+    <table>
+        <thead>
+            <tr><th>Cancel ID</th><th>Ticket No</th><th>Original Fare (&#8377;)</th><th>Journey Date</th><th>Refund Amount (&#8377;)</th></tr>
+        </thead>
+        <tbody>
+            {% for c in cancellations %}
+            <tr>
+                <td>{{ c.Cancel_Id }}</td>
+                <td>{{ c.Ticket_No if c.Ticket_No else '-' }}</td>
+                <td>{{ "%.2f"|format(c.Fare) if c.Fare else '-' }}</td>
+                <td>{{ c.Journey_Date if c.Journey_Date else '-' }}</td>
+                <td><strong>{{ "%.2f"|format(c.Refund_Amount) }}</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="msg-info">No cancellation records found.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

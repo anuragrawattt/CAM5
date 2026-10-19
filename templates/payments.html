@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content-box">
+    <h2>Payments</h2>
+
+    <!-- Search/Filter Form -->
+    <div class="search-section">
+        <h3>Filter Payments by Payment Mode</h3>
+        <p style="font-size:12px; color:#555;">
+            SQL used: <code>SELECT * FROM PAYMENT WHERE Mode = 'UPI' / 'Card' / 'Cash'</code>
+        </p>
+        <form method="GET">
+            <div class="form-row">
+                <label for="mode">Payment Mode:</label>
+                <select id="mode" name="mode">
+                    <option value="">-- All Payment Modes --</option>
+                    <option value="UPI"  {% if filter_mode == 'UPI'  %}selected{% endif %}>UPI</option>
+                    <option value="Card" {% if filter_mode == 'Card' %}selected{% endif %}>Card</option>
+                    <option value="Cash" {% if filter_mode == 'Cash' %}selected{% endif %}>Cash</option>
+                </select>
+                <button type="submit">Filter</button>
+                {% if filter_mode %}
+                <a href="{{ url_for('payments') }}" style="margin-left:10px; color:#24508f;">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+
+        {% if filter_mode %}
+            {% if search_results %}
+            <p style="margin-top:14px;"><strong>Payments filtered by "{{ filter_mode }}":</strong></p>
+            <table>
+                <thead>
+                    <tr><th>Payment ID</th><th>Amount (&#8377;)</th><th>Payment Mode</th><th>Ticket No</th></tr>
+                </thead>
+                <tbody>
+                    {% for pm in search_results %}
+                    <tr>
+                        <td>{{ pm.Payment_Id }}</td>
+                        <td>{{ "%.2f"|format(pm.Amount) }}</td>
+                        <td>{{ pm.Mode }}</td>
+                        <td>{{ pm.Ticket_No if pm.Ticket_No else '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="msg-info" style="margin-top:12px;">No payment records found for mode "{{ filter_mode }}".</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- All Payments -->
+    <h3>All Payment Transactions</h3>
+    {% if payments %}
+    <table>
+        <thead>
+            <tr><th>Payment ID</th><th>Amount (&#8377;)</th><th>Payment Mode</th><th>Ticket No</th></tr>
+        </thead>
+        <tbody>
+            {% for pm in payments %}
+            <tr>
+                <td>{{ pm.Payment_Id }}</td>
+                <td>{{ "%.2f"|format(pm.Amount) }}</td>
+                <td>{{ pm.Mode }}</td>
+                <td>{{ pm.Ticket_No if pm.Ticket_No else '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="msg-info">No payments recorded in the database.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

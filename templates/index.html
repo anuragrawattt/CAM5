@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content-box">
+    <h2>Welcome to the Railway Reservation System</h2>
+    <p>
+        This is a simple Railway Reservation System built as a college DBMS project.
+        It uses Python Flask for the backend, MySQL for data storage, and HTML/CSS for the frontend.
+        You can view, search, and add records for trains, stations, passengers, tickets, and more.
+    </p>
+</div>
+
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-number">{{ train_count }}</div>
+        <div class="stat-label">Total Trains</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ passenger_count }}</div>
+        <div class="stat-label">Total Passengers</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ ticket_count }}</div>
+        <div class="stat-label">Total Tickets</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">&#8377;{{ "%.0f"|format(total_fare) }}</div>
+        <div class="stat-label">Total Fare Collected</div>
+    </div>
+</div>
+
+<div class="content-box">
+    <h3>About This Project</h3>
+    <p><strong>Database:</strong> MySQL &mdash; <code>railway_reservation</code></p>
+    <p><strong>Backend:</strong> Python Flask</p>
+    <p><strong>Frontend:</strong> HTML + CSS + Jinja2 Templates</p>
+    <p>
+        The system manages 10 database tables: Railway Zones, Stations, Trains, Coaches,
+        Passengers, Tickets, Employees, Platforms, Payments, and Cancellations.
+        All counts shown above are fetched live from the database using SQL aggregate queries.
+    </p>
+</div>
+
+{% endblock %}

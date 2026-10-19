@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content-box">
+    <h2>Railway Zones</h2>
+    <p>All railway zones in the system. You can add a new zone or delete an existing one below.</p>
+
+    {% if zones %}
+    <table>
+        <thead>
+            <tr>
+                <th>Zone ID</th>
+                <th>Zone Name</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for z in zones %}
+            <tr>
+                <td>{{ z.Zone_Id }}</td>
+                <td>{{ z.Zone_Name }}</td>
+                <td>
+                    <form method="POST" style="display:inline;" onsubmit="return confirm('Delete zone {{ z.Zone_Id }}?');">
+                        <input type="hidden" name="action"  value="delete">
+                        <input type="hidden" name="zone_id" value="{{ z.Zone_Id }}">
+                        <button class="danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="msg-info">No railway zones found in the database.</p>
+    {% endif %}
+</div>
+
+<!-- Add Zone Form -->
+<div class="content-box">
+    <h3>Add New Railway Zone</h3>
+    <form method="POST">
+        <input type="hidden" name="action" value="add">
+        <div class="form-row">
+            <label for="zone_id">Zone ID:</label>
+            <input type="number" id="zone_id" name="zone_id" placeholder="e.g. 9" required>
+        </div>
+        <div class="form-row">
+            <label for="zone_name">Zone Name:</label>
+            <input type="text" id="zone_name" name="zone_name" placeholder="e.g. South Western Railway" required>
+        </div>
+        <div class="form-row">
+            <button type="submit">Add Zone</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

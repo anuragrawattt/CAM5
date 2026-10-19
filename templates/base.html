@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Railway Reservation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header>
+    <h1>Railway Reservation System</h1>
+</header>
+
+<nav>
+    <a href="{{ url_for('index') }}"         {% if request.endpoint == 'index'         %}class="active"{% endif %}>Home</a>
+    <a href="{{ url_for('zones') }}"         {% if request.endpoint == 'zones'         %}class="active"{% endif %}>Railway Zones</a>
+    <a href="{{ url_for('stations') }}"      {% if request.endpoint == 'stations'      %}class="active"{% endif %}>Stations</a>
+    <a href="{{ url_for('trains') }}"        {% if request.endpoint == 'trains'        %}class="active"{% endif %}>Trains</a>
+    <a href="{{ url_for('coaches') }}"       {% if request.endpoint == 'coaches'       %}class="active"{% endif %}>Coaches</a>
+    <a href="{{ url_for('passengers') }}"    {% if request.endpoint == 'passengers'    %}class="active"{% endif %}>Passengers</a>
+    <a href="{{ url_for('tickets') }}"       {% if request.endpoint == 'tickets'       %}class="active"{% endif %}>Tickets</a>
+    <a href="{{ url_for('employees') }}"     {% if request.endpoint == 'employees'     %}class="active"{% endif %}>Employees</a>
+    <a href="{{ url_for('platforms') }}"     {% if request.endpoint == 'platforms'     %}class="active"{% endif %}>Platforms</a>
+    <a href="{{ url_for('payments') }}"      {% if request.endpoint == 'payments'      %}class="active"{% endif %}>Payments</a>
+    <a href="{{ url_for('cancellations') }}" {% if request.endpoint == 'cancellations' %}class="active"{% endif %}>Cancellations</a>
+    <a href="{{ url_for('analytics') }}"     {% if request.endpoint == 'analytics'     %}class="active"{% endif %}>Analytics</a>
+</nav>
+
+<div class="container">
+
+    {% if message %}
+    <div class="msg-success">{{ message }}</div>
+    {% endif %}
+
+    {% if error %}
+    <div class="msg-error">{{ error }}</div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+</div>
+
+</body>
+</html>

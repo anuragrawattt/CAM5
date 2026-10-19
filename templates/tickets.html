@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content-box">
+    <h2>Tickets</h2>
+
+    <!-- Total Fare Banner -->
+    <div style="background-color: #e3f2fd; border-left: 4px solid #24508f; padding: 10px 14px; margin-bottom: 15px;">
+        <strong>Total Ticket Fare Collected:</strong> &#8377;{{ "%.2f"|format(total_fare) }}
+        <span style="font-size:12px; color:#555; margin-left: 10px;">(Calculated via <code>SELECT SUM(Fare) FROM TICKET</code>)</span>
+    </div>
+
+    <!-- Search Form -->
+    <div class="search-section">
+        <h3>Filter Tickets by Journey Date</h3>
+        <p style="font-size:12px; color:#555;">
+            SQL used: <code>SELECT * FROM TICKET WHERE Journey_Date = 'YYYY-MM-DD'</code>
+        </p>
+        <form method="GET">
+            <div class="form-row">
+                <label for="date">Journey Date:</label>
+                <input type="date" id="date" name="date" value="{{ search_date }}">
+                <button type="submit">Filter Tickets</button>
+                {% if search_date %}
+                <a href="{{ url_for('tickets') }}" style="margin-left:10px; color:#24508f;">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+
+        {% if search_date %}
+            {% if search_results %}
+            <p style="margin-top:14px;"><strong>Tickets on {{ search_date }}:</strong></p>
+            <table>
+                <thead>
+                    <tr><th>Ticket No</th><th>Passenger</th><th>Train</th><th>Coach</th><th>Journey Date</th><th>Fare (&#8377;)</th></tr>
+                </thead>
+                <tbody>
+                    {% for t in search_results %}
+                    <tr>
+                        <td>{{ t.Ticket_No }}</td>
+                        <td>{{ t.Passenger_Name if t.Passenger_Name else t.Passenger_Id }}</td>
+                        <td>{{ t.Train_Name if t.Train_Name else t.Train_No }}</td>
+                        <td>{{ t.Coach_No if t.Coach_No else '-' }}</td>
+                        <td>{{ t.Journey_Date }}</td>
+                        <td>{{ "%.2f"|format(t.Fare) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="msg-info" style="margin-top:12px;">No tickets found for journey date {{ search_date }}.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- All Tickets -->
+    <h3>All Booked Tickets</h3>
+    {% if tickets %}
+    <table>
+        <thead>
+            <tr><th>Ticket No</th><th>Passenger</th><th>Train</th><th>Coach</th><th>Journey Date</th><th>Fare (&#8377;)</th></tr>
+        </thead>
+        <tbody>
+            {% for t in tickets %}
+            <tr>
+                <td>{{ t.Ticket_No }}</td>
+                <td>{{ t.Passenger_Name if t.Passenger_Name else t.Passenger_Id }}</td>
+                <td>{{ t.Train_Name if t.Train_Name else t.Train_No }}</td>
+                <td>{{ t.Coach_No if t.Coach_No else '-' }}</td>
+                <td>{{ t.Journey_Date }}</td>
+                <td>{{ "%.2f"|format(t.Fare) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="msg-info">No tickets booked yet.</p>
+    {% endif %}
+</div>
+
+<!-- Add Ticket Form -->
+<div class="content-box">
+    <h3>Book / Add New Ticket</h3>
+    <form method="POST">
+        <div class="form-row">
+            <label for="passenger_id">Passenger:</label>
+            <select id="passenger_id" name="passenger_id" required>
+                <option value="">-- Select Passenger --</option>
+                {% for p in passengers %}
+                <option value="{{ p.Passenger_Id }}">{{ p.Passenger_Id }} - {{ p.Passenger_Name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-row">
+            <label for="train_no">Train:</label>
+            <select id="train_no" name="train_no" required>
+                <option value="">-- Select Train --</option>
+                {% for tr in trains %}
+                <option value="{{ tr.Train_No }}">{{ tr.Train_No }} - {{ tr.Train_Name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-row">
+            <label for="coach_no">Coach:</label>
+            <select id="coach_no" name="coach_no">
+                <option value="">-- Select Coach (Optional) --</option>
+                {% for c in coaches %}
+                <option value="{{ c.Coach_No }}">{{ c.Coach_No }} ({{ c.Coach_Type }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-row">
+            <label for="journey_date">Journey Date:</label>
+            <input type="date" id="journey_date" name="journey_date" required>
+        </div>
+        <div class="form-row">
+            <label for="fare">Fare Amount (&#8377;):</label>
+            <input type="number" step="0.01" id="fare" name="fare" placeholder="e.g. 1450.00" required>
+        </div>
+        <div class="form-row">
+            <button type="submit">Book Ticket</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content-box">
+    <h2>Data Analytics &amp; Visualization</h2>
+    <p>
+        Statistical analysis, category-wise summaries, and distributions calculated directly from the database using SQL aggregate functions (<code>COUNT</code>, <code>SUM</code>, <code>AVG</code>, <code>MIN</code>, <code>MAX</code>, and <code>GROUP BY</code>).
+    </p>
+</div>
+
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-number">&#8377;{{ "%.2f"|format(ticket_fare_stats.avg_fare) if ticket_fare_stats.avg_fare else '0.00' }}</div>
+        <div class="stat-label">Average Ticket Fare</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">&#8377;{{ "%.2f"|format(ticket_fare_stats.min_fare) if ticket_fare_stats.min_fare else '0.00' }} / &#8377;{{ "%.2f"|format(ticket_fare_stats.max_fare) if ticket_fare_stats.max_fare else '0.00' }}</div>
+        <div class="stat-label">Min / Max Fare</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">&#8377;{{ "%.2f"|format(refund_stats.avg_refund) if refund_stats.avg_refund else '0.00' }}</div>
+        <div class="stat-label">Average Refund Amount</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ "%.0f"|format(platform_stats.avg_capacity) if platform_stats.avg_capacity else '0' }}</div>
+        <div class="stat-label">Average Platform Capacity</div>
+    </div>
+</div>
+
+<div class="content-box">
+    <h3>1. Train Distribution by Category (Group By Type)</h3>
+    <p style="font-size:12px; color:#555;">
+        SQL query: <code>SELECT Type, COUNT(*) AS count FROM TRAIN GROUP BY Type ORDER BY count DESC</code>
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 25%;">Train Type</th>
+                <th style="width: 15%;">Count</th>
+                <th style="width: 60%;">Distribution Bar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in train_type_stats %}
+            <tr>
+                <td><strong>{{ item.Type }}</strong></td>
+                <td>{{ item.count }} trains</td>
+                <td>
+                    <div style="background-color: #24508f; height: 18px; width: {{ item.pct }}%; min-width: 12px; border-radius: 2px;"></div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="content-box">
+    <h3>2. Revenue by Payment Mode (Group By Mode)</h3>
+    <p style="font-size:12px; color:#555;">
+        SQL query: <code>SELECT Mode, COUNT(*) AS count, SUM(Amount) AS total_amount FROM PAYMENT GROUP BY Mode ORDER BY total_amount DESC</code>
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 20%;">Payment Mode</th>
+                <th style="width: 15%;">Transactions</th>
+                <th style="width: 20%;">Total Revenue (&#8377;)</th>
+                <th style="width: 45%;">Revenue Share Bar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in payment_mode_stats %}
+            <tr>
+                <td><strong>{{ item.Mode }}</strong></td>
+                <td>{{ item.count }}</td>
+                <td>&#8377;{{ "%.2f"|format(item.total_amount) }}</td>
+                <td>
+                    <div style="background-color: #1a3a6b; height: 18px; width: {{ item.pct }}%; min-width: 12px; border-radius: 2px;"></div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="content-box">
+    <h3>3. Aggregate Overview Table</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Metric Description</th>
+                <th>SQL Aggregate Operation</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Total Booked Tickets</td>
+                <td><code>COUNT(*) FROM TICKET</code></td>
+                <td>{{ ticket_fare_stats.total_tickets }}</td>
+            </tr>
+            <tr>
+                <td>Total Ticket Revenue</td>
+                <td><code>SUM(Fare) FROM TICKET</code></td>
+                <td>&#8377;{{ "%.2f"|format(ticket_fare_stats.total_fare) }}</td>
+            </tr>
+            <tr>
+                <td>Average Ticket Price</td>
+                <td><code>AVG(Fare) FROM TICKET</code></td>
+                <td>&#8377;{{ "%.2f"|format(ticket_fare_stats.avg_fare) }}</td>
+            </tr>
+            <tr>
+                <td>Minimum Ticket Fare</td>
+                <td><code>MIN(Fare) FROM TICKET</code></td>
+                <td>&#8377;{{ "%.2f"|format(ticket_fare_stats.min_fare) }}</td>
+            </tr>
+            <tr>
+                <td>Maximum Ticket Fare</td>
+                <td><code>MAX(Fare) FROM TICKET</code></td>
+                <td>&#8377;{{ "%.2f"|format(ticket_fare_stats.max_fare) }}</td>
+            </tr>
+            <tr>
+                <td>Total Cancellations</td>
+                <td><code>COUNT(*) FROM CANCELLATION</code></td>
+                <td>{{ refund_stats.total_cancellations }}</td>
+            </tr>
+            <tr>
+                <td>Total Refund Disbursed</td>
+                <td><code>SUM(Refund_Amount) FROM CANCELLATION</code></td>
+                <td>&#8377;{{ "%.2f"|format(refund_stats.total_refund) }}</td>
+            </tr>
+            <tr>
+                <td>Average Refund Disbursed</td>
+                <td><code>AVG(Refund_Amount) FROM CANCELLATION</code></td>
+                <td>&#8377;{{ "%.2f"|format(refund_stats.avg_refund) }}</td>
+            </tr>
+            <tr>
+                <td>Average Platform Capacity</td>
+                <td><code>AVG(Capacity) FROM PLATFORM</code></td>
+                <td>{{ "%.1f"|format(platform_stats.avg_capacity) }} passengers</td>
+            </tr>
+            <tr>
+                <td>Min / Max Platform Capacity</td>
+                <td><code>MIN(Capacity), MAX(Capacity) FROM PLATFORM</code></td>
+                <td>{{ platform_stats.min_capacity }} &ndash; {{ platform_stats.max_capacity }} passengers</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

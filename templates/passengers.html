@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content-box">
+    <h2>Passengers</h2>
+
+    <!-- Search Form -->
+    <div class="search-section">
+        <h3>Search Passengers</h3>
+        <p style="font-size:12px; color:#555;">
+            SQL used: <code>SELECT * FROM PASSENGER WHERE Passenger_Name LIKE '%search%'</code>
+        </p>
+        <form method="GET">
+            <div class="form-row">
+                <label for="search">Passenger Name:</label>
+                <input type="text" id="search" name="search" value="{{ search_term }}" placeholder="e.g. Sharma">
+                <button type="submit">Search</button>
+                {% if search_term %}
+                <a href="{{ url_for('passengers') }}" style="margin-left:10px; color:#24508f;">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+
+        {% if search_term %}
+            {% if search_results %}
+            <p style="margin-top:14px;"><strong>Results for "{{ search_term }}":</strong></p>
+            <table>
+                <thead>
+                    <tr><th>Passenger ID</th><th>Passenger Name</th><th>Date of Birth</th></tr>
+                </thead>
+                <tbody>
+                    {% for p in search_results %}
+                    <tr>
+                        <td>{{ p.Passenger_Id }}</td>
+                        <td>{{ p.Passenger_Name }}</td>
+                        <td>{{ p.DOB }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="msg-info" style="margin-top:12px;">No passengers found matching "{{ search_term }}".</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- All Passengers -->
+    <h3>All Passengers</h3>
+    {% if passengers %}
+    <table>
+        <thead>
+            <tr><th>Passenger ID</th><th>Passenger Name</th><th>Date of Birth</th></tr>
+        </thead>
+        <tbody>
+            {% for p in passengers %}
+            <tr>
+                <td>{{ p.Passenger_Id }}</td>
+                <td>{{ p.Passenger_Name }}</td>
+                <td>{{ p.DOB }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="msg-info">No passengers found in the database.</p>
+    {% endif %}
+</div>
+
+<!-- Add Passenger Form -->
+<div class="content-box">
+    <h3>Add New Passenger</h3>
+    <form method="POST">
+        <div class="form-row">
+            <label for="passenger_name">Passenger Name:</label>
+            <input type="text" id="passenger_name" name="passenger_name" placeholder="e.g. Ramesh Chandra" required>
+        </div>
+        <div class="form-row">
+            <label for="dob">Date of Birth:</label>
+            <input type="date" id="dob" name="dob" required>
+        </div>
+        <div class="form-row">
+            <button type="submit">Add Passenger</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

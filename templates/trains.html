@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content-box">
+    <h2>Trains</h2>
+
+    <!-- Search & Sort -->
+    <div class="search-section">
+        <h3>Search / Sort Trains</h3>
+        <p style="font-size:12px; color:#555;">
+            SQL used: <code>SELECT * FROM TRAIN WHERE Train_Name LIKE '%s%' OR Type LIKE '%s%'</code>
+        </p>
+        <form method="GET" style="display:inline-block; margin-right:20px;">
+            <div class="form-row">
+                <label for="search">Search by Name / Type:</label>
+                <input type="text" id="search" name="search" value="{{ search_term }}" placeholder="e.g. Rajdhani">
+                <button type="submit">Search</button>
+                {% if search_term %}
+                <a href="{{ url_for('trains') }}" style="margin-left:10px; color:#24508f;">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+
+        <form method="GET" style="display:inline-block;">
+            <button type="submit" name="sort" value="name">Sort by Name A-Z</button>
+        </form>
+
+        {% if search_term %}
+            {% if search_results %}
+            <p style="margin-top:14px;"><strong>Results for "{{ search_term }}":</strong></p>
+            <table>
+                <thead><tr><th>Train No</th><th>Train Name</th><th>Type</th><th>Zone ID</th></tr></thead>
+                <tbody>
+                    {% for t in search_results %}
+                    <tr>
+                        <td>{{ t.Train_No }}</td>
+                        <td>{{ t.Train_Name }}</td>
+                        <td>{{ t.Type }}</td>
+                        <td>{{ t.Zone_Id if t.Zone_Id else '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="msg-info" style="margin-top:12px;">No trains found matching "{{ search_term }}".</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- All Trains Table -->
+    <h3>
+        All Trains
+        {% if sort_by == 'name' %}
+        <span style="font-size:13px; color:#555;">(sorted A-Z by name)</span>
+        {% endif %}
+    </h3>
+    {% if trains %}
+    <table>
+        <thead>
+            <tr><th>Train No</th><th>Train Name</th><th>Type</th><th>Zone ID</th></tr>
+        </thead>
+        <tbody>
+            {% for t in trains %}
+            <tr>
+                <td>{{ t.Train_No }}</td>
+                <td>{{ t.Train_Name }}</td>
+                <td>{{ t.Type }}</td>
+                <td>{{ t.Zone_Id if t.Zone_Id else '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="msg-info">No trains found in the database.</p>
+    {% endif %}
+</div>
+
+<!-- Add Train Form -->
+<div class="content-box">
+    <h3>Add New Train</h3>
+    <form method="POST">
+        <div class="form-row">
+            <label for="train_no">Train No:</label>
+            <input type="number" id="train_no" name="train_no" placeholder="e.g. 12345" required>
+        </div>
+        <div class="form-row">
+            <label for="train_name">Train Name:</label>
+            <input type="text" id="train_name" name="train_name" placeholder="e.g. Gujarat Express" required>
+        </div>
+        <div class="form-row">
+            <label for="type">Train Type:</label>
+            <select id="type" name="type" required>
+                <option value="">-- Select --</option>
+                <option value="Rajdhani">Rajdhani</option>
+                <option value="Shatabdi">Shatabdi</option>
+                <option value="Duronto">Duronto</option>
+                <option value="Superfast">Superfast</option>
+                <option value="Express">Express</option>
+                <option value="Passenger">Passenger</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <label for="zone_id">Zone ID (optional):</label>
+            <input type="number" id="zone_id" name="zone_id" placeholder="e.g. 1">
+        </div>
+        <div class="form-row">
+            <button type="submit">Add Train</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
