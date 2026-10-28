@@ -1,4 +1,5 @@
 import os
+import subprocess
 from flask import Flask, render_template, request, redirect, url_for, flash
 import mysql.connector
 from mysql.connector import Error
@@ -10,17 +11,44 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "railway_secret_2024")
 
 def get_connection():
-    try:
-        conn = mysql.connector.connect(
-            host     = os.getenv("DB_HOST",     "localhost"),
-            user     = os.getenv("DB_USER",     "root"),
-            password = os.getenv("DB_PASSWORD", ""),
-            database = os.getenv("DB_NAME",     "railway_reservation")
-        )
-        return conn
-    except Error as e:
-        print(f"[DB ERROR] {e}")
-        return None
+    candidates = []
+    env_host = os.getenv("DB_HOST", "localhost")
+    env_port = int(os.getenv("DB_PORT", 3308))
+    candidates.append((env_host, env_port))
+
+    if env_host in ("localhost", "127.0.0.1"):
+        try:
+            subprocess.run(
+                ["wsl", "-u", "root", "-d", "Ubuntu", "-e", "service", "mysql", "start"],
+                timeout=4,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+            wsl_ip = subprocess.check_output(
+                ["wsl", "-d", "Ubuntu", "-e", "/bin/bash", "-c", "hostname -I"],
+                timeout=3
+            ).decode().split()[0]
+            if wsl_ip and (wsl_ip, env_port) not in candidates:
+                candidates.append((wsl_ip, env_port))
+        except Exception:
+            pass
+
+    last_err = "No candidates reachable"
+    for host, port in candidates:
+        try:
+            conn = mysql.connector.connect(
+                host     = host,
+                port     = port,
+                user     = os.getenv("DB_USER",     "root"),
+                password = os.getenv("DB_PASSWORD", ""),
+                database = os.getenv("DB_NAME",     "railway_reservation")
+            )
+            return conn
+        except Error as e:
+            last_err = e
+
+    print(f"[DB ERROR] {last_err}")
+    return None
 
 def db_execute(query, params=(), fetch=True):
     conn = get_connection()
